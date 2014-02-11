@@ -84,13 +84,13 @@ end
 #
 #############################################################################
 
-if ENV["TRAVIS"] == "true"
+if ENV["TRAVIS"].eql?("true")
   require 'coveralls/rake/task'
   Coveralls::RakeTask.new
 
-  task :default => [:test, :features, 'coveralls:push']
+  task :default => [:spec, :test, :features, 'coveralls:push']
 else
-  task :default => [:test, :features]
+  task :default => [:spec, :test, :features]
 end
 
 require 'rake/testtask'
@@ -122,6 +122,9 @@ rescue LoadError
     abort 'Cucumber rake task is not available. Be sure to install cucumber as a gem or plugin'
   end
 end
+
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec)
 
 desc "Open an irb session preloaded with this library"
 task :console do
