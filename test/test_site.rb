@@ -151,20 +151,20 @@ class TestSite < Test::Unit::TestCase
     end
 
     should "filter entries with exclude" do
-      excludes = %w[README TODO]
-      files = %w[index.html site.css .htaccess]
+        excludes = %w[README TODO]
+        files = %w[index.html site.css .htaccess]
 
-      @site.exclude = excludes
-      assert_equal files, @site.filter_entries(excludes + files)
-    end
-    
-    should "not filter entries within include" do
-      includes = %w[_index.html .htaccess]
-      files = %w[index.html _index.html .htaccess]
+        @site.exclude = excludes + ["exclude*"]
+        assert_equal files, @site.filter_entries(excludes + files + ["excludeA"])
+      end
 
-      @site.include = includes
-      assert_equal files, @site.filter_entries(files)
-    end
+      should "not filter entries within include" do
+        includes = %w[_index.html .htaccess include*]
+        files = %w[index.html _index.html .htaccess includeA]
+
+        @site.include = includes
+        assert_equal files, @site.filter_entries(files)
+      end
 
     context 'with orphaned files in destination' do
       setup do
@@ -181,14 +181,14 @@ class TestSite < Test::Unit::TestCase
         # empty directory
         FileUtils.mkdir(dest_dir('quux'))
       end
-      
+
       teardown do
         FileUtils.rm_f(dest_dir('.htpasswd'))
         FileUtils.rm_f(dest_dir('obsolete.html'))
         FileUtils.rm_rf(dest_dir('qux'))
         FileUtils.rm_f(dest_dir('quux'))
       end
-      
+
       should 'remove orphaned files in destination' do
         @site.process
         assert !File.exist?(dest_dir('.htpasswd'))
@@ -198,7 +198,7 @@ class TestSite < Test::Unit::TestCase
       end
 
     end
-    
+
     context 'with an invalid markdown processor in the configuration' do
       should 'not throw an error at initialization time' do
         bad_processor = 'not a processor name'
@@ -206,7 +206,7 @@ class TestSite < Test::Unit::TestCase
           Site.new(Jekyll.configuration.merge({ 'markdown' => bad_processor }))
         end
       end
-      
+
       should 'throw FatalException at process time' do
         bad_processor = 'not a processor name'
         s = Site.new(Jekyll.configuration.merge({ 'markdown' => bad_processor }))
@@ -215,6 +215,6 @@ class TestSite < Test::Unit::TestCase
         end
       end
     end
-    
+
   end
 end
